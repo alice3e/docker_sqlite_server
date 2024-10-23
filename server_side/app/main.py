@@ -2,6 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 import sql_service as sq # sql_service.py
+import bcrypt
 
 app = FastAPI()
 
@@ -14,9 +15,23 @@ class UserCredentials(BaseModel):
     email: str
     login: str
     password: str
+    
+# API для входа пользователя
+@app.post("/login")
+async def login_user(credentials: UserCredentials, db: Session = Depends(sq.get_db_session)):
+    # Проверка существования пользователя по логину
+    user = sq.get_user_by_login(db, credentials.login)
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid login or password")
+
+    # Проверка пароля
+    if not bcrypt.checkpw(credentials.password.encode('utf-8'), user.password.encode('utf-8')):
+        raise HTTPException(status_code=400, detail="Invalid login or password")
+
+    return {"message": "Login successful", "user_id": user.id}
 
 # API для регистрации нового пользователя
-@app.post("/login")
+@app.post("/register")
 async def register_user(credentials: UserCredentials, db: Session = Depends(sq.get_db_session)):
     print(credentials)
     # Проверка, есть ли пользователь с таким логином или email
