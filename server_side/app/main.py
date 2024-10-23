@@ -24,15 +24,21 @@ class LoginCredentials(BaseModel):
 # API для входа пользователя
 @app.post("/login")
 async def login_user(credentials: LoginCredentials, db: Session = Depends(sq.get_db_session)):
-    # Проверка существования пользователя по логину
-    user = sq.get_user_by_login(db, credentials.login)
-    if not user:
-        raise HTTPException(status_code=400, detail="Invalid login or password")
-
-    # Проверка пароля
-    if not bcrypt.checkpw(credentials.password.encode('utf-8'), user.password.encode('utf-8')):
-        raise HTTPException(status_code=400, detail="Invalid login or password")
-
+    print(f"Attempting login for user: {credentials.login}")
+    try:
+        # Попытка получить пользователя
+        user = sq.get_user_by_login(db, credentials.login)
+        print(user.password, credentials.password)  # Отладочная информация о пароле
+        # Проверка пароля
+        if user.password != credentials.password:
+            print("Invalid password")
+            raise HTTPException(status_code=400, detail="Invalid password")
+    except AttributeError:
+        # Обработка ситуации, когда user равен None (отсутствует)
+        print("User not found")
+        raise HTTPException(status_code=400, detail="Invalid login")
+    # Если всё прошло успешно
+    print(f"Login successful for user: {user.id}")
     return {"message": "Login successful", "user_id": user.id}
 
 # API для регистрации нового пользователя
