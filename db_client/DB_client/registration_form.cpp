@@ -80,22 +80,34 @@ void registration_form::on_reg_clicked()
 
         } else {
             // Ошибка при запросе
-            qDebug() << "Error: " << reply->errorString();
-            if(reply->errorString() == "User with this email already exists"){
-                QMessageBox::warning(this, "Registration Error", "Failed to register. User with this email already exists.");
-            }
+            QByteArray response_data = reply->readAll();  // Чтение тела ответа
+            qDebug() << "Error response from server: " << response_data;
 
-            else if(reply->errorString() == "User with this login already exists"){
-                QMessageBox::warning(this, "Registration Error", "Failed to register. User with this login already exists.");
-            }
+            // Попытаемся распарсить JSON, который сервер отправляет в ответе
+            QJsonDocument jsonDoc = QJsonDocument::fromJson(response_data);
+            QJsonObject jsonObj = jsonDoc.object();
 
-            else{
+            // Проверяем наличие поля "detail" в JSON (именно там сервер отправляет сообщение об ошибке)
+            if (jsonObj.contains("detail")) {
+                QString errorDetail = jsonObj["detail"].toString();
+
+                if (errorDetail == "User with this email already exists") {
+                    QMessageBox::warning(this, "Registration Error", "Failed to register. User with this email already exists.");
+                } else if (errorDetail == "User with this login already exists") {
+                    QMessageBox::warning(this, "Registration Error", "Failed to register. User with this login already exists.");
+                } else {
+                    QMessageBox::warning(this, "Registration Error", "Failed to register. error: " + errorDetail);
+                }
+
+            } else {
+                // Если в ответе нет детального описания ошибки
                 QMessageBox::warning(this, "Registration Error", "Failed to register. Unknown error.");
             }
-
         }
+
         reply->deleteLater();  // Удаляем reply после обработки
     });
+
 }
 
 void registration_form::setup_ui(){

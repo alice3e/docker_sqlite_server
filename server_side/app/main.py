@@ -18,13 +18,15 @@ class UserCredentials(BaseModel):
 # API для регистрации нового пользователя
 @app.post("/login")
 async def register_user(credentials: UserCredentials, db: Session = Depends(sq.get_db_session)):
-    
+    print(credentials)
     # Проверка, есть ли пользователь с таким логином или email
     email_exists = sq.get_user_by_email(db, credentials.email)
     login_exists = sq.get_user_by_login(db, credentials.login)
     if email_exists:
+
         raise HTTPException(status_code=400, detail="User with this email already exists")
     elif login_exists:
+        print(f'User with this login already exists - {credentials.login}')
         raise HTTPException(status_code=400, detail="User with this login already exists")
     else:
     # Добавляем нового пользователя
