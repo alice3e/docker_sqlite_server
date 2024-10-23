@@ -81,7 +81,18 @@ void registration_form::on_reg_clicked()
         } else {
             // Ошибка при запросе
             qDebug() << "Error: " << reply->errorString();
-            QMessageBox::warning(this, "Registration Error", "Failed to register. Please try again.");
+            if(reply->errorString() == "User with this email already exists"){
+                QMessageBox::warning(this, "Registration Error", "Failed to register. User with this email already exists.");
+            }
+
+            else if(reply->errorString() == "User with this login already exists"){
+                QMessageBox::warning(this, "Registration Error", "Failed to register. User with this login already exists.");
+            }
+
+            else{
+                QMessageBox::warning(this, "Registration Error", "Failed to register. Unknown error.");
+            }
+
         }
         reply->deleteLater();  // Удаляем reply после обработки
     });

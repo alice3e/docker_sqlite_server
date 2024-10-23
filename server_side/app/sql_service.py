@@ -30,8 +30,12 @@ def add_user(db, name: str, email: str, login: str, password: str):
     return new_user
 
 # Функция для проверки существования пользователя
-def get_user_by_email_or_login(db, email: str, login: str):
-    return db.query(User).filter((User.email == email) | (User.login == login)).first()
+def get_user_by_login(db, login: str):
+    return db.query(User).filter(User.login == login).first()
+
+def get_user_by_email(db, email: str):
+    return db.query(User).filter(User.email == email).first()
+
 
 # Функция для получения сессии базы данных
 def get_db_session():
