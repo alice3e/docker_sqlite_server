@@ -16,9 +16,14 @@ class UserCredentials(BaseModel):
     login: str
     password: str
     
+# Pydantic модель для входа
+class LoginCredentials(BaseModel):
+    login: str
+    password: str
+    
 # API для входа пользователя
 @app.post("/login")
-async def login_user(credentials: UserCredentials, db: Session = Depends(sq.get_db_session)):
+async def login_user(credentials: LoginCredentials, db: Session = Depends(sq.get_db_session)):
     # Проверка существования пользователя по логину
     user = sq.get_user_by_login(db, credentials.login)
     if not user:

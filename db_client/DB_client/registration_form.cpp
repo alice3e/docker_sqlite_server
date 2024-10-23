@@ -59,7 +59,7 @@ void registration_form::on_reg_clicked()
     QNetworkAccessManager* manager = new QNetworkAccessManager(this);
 
     // Указываем URL сервера
-    QUrl url("http://localhost:8000/login");
+    QUrl url("http://localhost:8000/register");
     QNetworkRequest request(url);
 
     // Устанавливаем заголовок, чтобы указать тип содержимого (JSON)

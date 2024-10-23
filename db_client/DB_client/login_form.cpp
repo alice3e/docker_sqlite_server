@@ -6,6 +6,12 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <iostream>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QJsonDocument>
+#include <QJsonObject>
+
 
 login_form::login_form(QWidget *parent)
     : QDialog(parent)
@@ -15,22 +21,76 @@ login_form::login_form(QWidget *parent)
     setup_ui();  // Вызов функции настройки UI
 }
 
-
 void login_form::on_login_clicked()
 {
     QString userlogin = ui->login_input->text().trimmed();
     QString password = ui->password_input->text().trimmed();
+    QByteArray passwordHash = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha256);
+    QString hashedPassword = passwordHash.toHex();
 
-    if (userlogin == "admin" && password == "1234") {
-        // Создаем новую страницу и показываем её
-        MainWindow *main_window = new MainWindow();
-        main_window->show();
-        this->hide(); // Скрываем окно входа
-    } else {
-        // Показываем уведомление, что пароль неверный
-        QMessageBox::warning(this, "Ошибка входа", "Неверное имя пользователя или пароль. Пожалуйста, попробуйте снова.");
-    }
+    // Создаем JSON-объект для отправки на сервер
+    QJsonObject json;
+    json["login"] = userlogin;
+    json["password"] = hashedPassword;
+    // Хешируем пароль перед отправкой
+
+    // Преобразуем JSON-объект в строку
+    QJsonDocument jsonDoc(json);
+    QByteArray jsonData = jsonDoc.toJson();
+
+    // Создаем экземпляр QNetworkAccessManager
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+
+    // Устанавливаем URL для запроса
+    QUrl url("http://localhost:8000/login");
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    // Отправляем POST-запрос
+    QNetworkReply *reply = manager->post(request, jsonData);
+
+    // Подключаем слот для обработки ответа от сервера
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        if (reply->error() == QNetworkReply::NoError) {
+            // Успешно получили ответ
+            QByteArray response_data = reply->readAll();
+            qDebug() << "Response from server: " << response_data;
+
+            // Если сервер вернул успешный ответ, показываем главное окно
+            QMessageBox::information(this, "Успех", "Вход выполнен успешно!");
+            MainWindow *main_window = new MainWindow();
+            main_window->show();
+            this->hide(); // Скрываем окно входа
+        }
+        else {
+            // Ошибка при запросе
+            QByteArray response_data = reply->readAll();  // Чтение тела ответа
+            qDebug() << "Error response from server: " << response_data;
+
+            // Попытаемся распарсить JSON, который сервер отправляет в ответе
+            QJsonDocument jsonDoc = QJsonDocument::fromJson(response_data);
+            QJsonObject jsonObj = jsonDoc.object();
+
+            // Проверяем наличие поля "detail" в JSON (именно там сервер отправляет сообщение об ошибке)
+            if (jsonObj.contains("detail")) {
+                QString errorDetail = jsonObj["detail"].toString();
+
+                if (errorDetail == "User with this email already exists") {
+                    QMessageBox::warning(this, "Login Error", "Failed to Login. Wrong password or login.");
+                }
+                else {
+                    QMessageBox::warning(this, "Login Error", "Failed to login: " + errorDetail);
+                }
+
+            } else {
+                // Если в ответе нет детального описания ошибки
+                QMessageBox::warning(this, "Login Error", "Failed to login. Unknown error.");
+            }
+        }
+        reply->deleteLater();  // Удаляем reply после обработки
+    });
 }
+
 
 void login_form::on_registration_clicked()
 {
