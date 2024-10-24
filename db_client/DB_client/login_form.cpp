@@ -23,8 +23,8 @@ login_form::login_form(QWidget *parent)
 
 void login_form::on_login_clicked()
 {
-    QString userlogin = ui->login_input->text().trimmed();
-    QString password = ui->password_input->text().trimmed();
+    QString userlogin = login_input->text().trimmed();
+    QString password = password_input->text().trimmed();
     QByteArray passwordHash = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha256);
     QString hashedPassword = passwordHash.toHex();
 
@@ -104,26 +104,30 @@ void login_form::setup_ui()
     this->resize(400, 200);
     this->setWindowTitle("Форма входа");
 
+
+    welcomeLabel = new QLabel("Добро пожаловать в базу данных");
+    instructionLabel = new QLabel("Введите логин и пароль");
+    login_input = new QLineEdit(this);
+    password_input = new QLineEdit(this);
+    button_login = new QPushButton("Войти", this);
+    registration_button = new QPushButton("Войти", this);
+
     // Настройка полей ввода
-    ui->login_input->setPlaceholderText("логин");
-    ui->password_input->setPlaceholderText("пароль");
-    ui->password_input->setEchoMode(QLineEdit::Password);
+    login_input->setPlaceholderText("логин");
+    password_input->setPlaceholderText("пароль");
+    password_input->setEchoMode(QLineEdit::Password);
 
     // Создание и настройка вертикального компоновщика
     QVBoxLayout *layout = new QVBoxLayout();
-    QLabel *welcomeLabel = new QLabel("Добро пожаловать в базу данных");
-    QLabel *instructionLabel = new QLabel("Введите логин и пароль");
-    ui->button_login->setText("Войти");
-    ui->registration_button->setText("Регистрация");
 
     // Добавление виджетов в компоновщик
     layout->addWidget(welcomeLabel);
     layout->addWidget(instructionLabel);
-    layout->addWidget(ui->login_input);
-    layout->addWidget(ui->password_input);
-    layout->addWidget(ui->button_login);
+    layout->addWidget(login_input);
+    layout->addWidget(password_input);
+    layout->addWidget(button_login);
     //registration_button
-    layout->addWidget(ui->registration_button);
+    layout->addWidget(registration_button);
     // Установка отступов и промежутков
     layout->setContentsMargins(50, 50, 50, 50); // Отступы от краев окна
     layout->setSpacing(20); // Расстояние между виджетами
@@ -133,8 +137,8 @@ void login_form::setup_ui()
     this->setLayout(layout);
 
     // Подключение сигнала нажатия кнопки к слоту
-    connect(ui->button_login, &QPushButton::clicked, this, &login_form::on_login_clicked);
-    connect(ui->registration_button, &QPushButton::clicked, this, &login_form::on_registration_clicked);
+    connect(button_login, &QPushButton::clicked, this, &login_form::on_login_clicked);
+    connect(registration_button, &QPushButton::clicked, this, &login_form::on_registration_clicked);
 }
 
 login_form::~login_form()

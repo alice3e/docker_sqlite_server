@@ -27,6 +27,15 @@ private slots:
 private:
     Ui::login_form *ui;
     void setup_ui();
+
+    QLabel *welcomeLabel;
+    QLabel *instructionLabel;
+
+    QLineEdit *login_input;
+    QLineEdit *password_input;
+
+    QPushButton *button_login;
+    QPushButton *registration_button;
 };
 
 #endif // LOGIN_FORM_H

@@ -5,6 +5,16 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QUrl>
+#include <QCryptographicHash>
+#include <QMessageBox>
+#include <QLineEdit>
+#include <QPushButton>
 
 namespace Ui {
 class registration_form;
@@ -21,6 +31,12 @@ public:
 private:
     Ui::registration_form *ui;
     void setup_ui();
+
+    QLineEdit *name_input;
+    QLineEdit *email_input;
+    QLineEdit *login_input;
+    QLineEdit *password_input;
+    QPushButton *register_button;
 
 
 private slots:

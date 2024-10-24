@@ -1,15 +1,6 @@
 #include "registration_form.h"
 #include "ui_registration_form.h"
 
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QNetworkReply>
-#include <QJsonObject>
-#include <QJsonDocument>
-#include <QUrl>
-#include <QCryptographicHash>
-#include <QMessageBox>
-
 registration_form::registration_form(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::registration_form)
@@ -21,10 +12,10 @@ registration_form::registration_form(QWidget *parent) :
 void registration_form::on_reg_clicked()
 {
     // Получаем значения полей из UI
-    QString user_login = ui->login_input->text().trimmed();
-    QString user_name = ui->name_input->text().trimmed();
-    QString user_email = ui->email_input->text().trimmed();
-    QString user_password = ui->password_input->text().trimmed();
+    QString user_login = login_input->text().trimmed();
+    QString user_name = name_input->text().trimmed();
+    QString user_email = email_input->text().trimmed();
+    QString user_password = password_input->text().trimmed();
 
     // Проверка на пустые поля
     if (user_login.isEmpty() || user_name.isEmpty() || user_email.isEmpty() || user_password.isEmpty()) {
@@ -77,6 +68,7 @@ void registration_form::on_reg_clicked()
 
             // Если сервер вернул успешный ответ, выводим сообщение об успехе
             QMessageBox::information(this, "Success", "Registration successful!");
+            this->close();
 
         } else {
             // Ошибка при запросе
@@ -116,12 +108,18 @@ void registration_form::setup_ui(){
     this->resize(200, 400);
 
     // Установка полей ввода
-    ui->name_input->setPlaceholderText("Имя");
-    ui->email_input->setPlaceholderText("Электронная почта");
-    ui->login_input->setPlaceholderText("Логин");
-    ui->password_input->setPlaceholderText("Пароль");
-    ui->password_input->setEchoMode(QLineEdit::Password);
-    ui->register_button->setText("Регистрация");
+    name_input = new QLineEdit(this);
+    email_input = new QLineEdit(this);
+    login_input = new QLineEdit(this);
+    password_input = new QLineEdit(this);
+    register_button = new QPushButton("Регистрация", this);
+
+    // Настраиваем виджеты
+    name_input->setPlaceholderText("Имя");
+    email_input->setPlaceholderText("Электронная почта");
+    login_input->setPlaceholderText("Логин");
+    password_input->setPlaceholderText("Пароль");
+    password_input->setEchoMode(QLineEdit::Password);
 
     // Создание и настройка вертикального компоновщика
     QVBoxLayout *layout = new QVBoxLayout();
@@ -130,18 +128,18 @@ void registration_form::setup_ui(){
 
     layout->addWidget(welcomeLabel);
     layout->addWidget(instructionLabel);
-    layout->addWidget(ui->name_input);
-    layout->addWidget(ui->email_input);
-    layout->addWidget(ui->login_input);
-    layout->addWidget(ui->password_input);
-    layout->addWidget(ui->register_button);
+    layout->addWidget(name_input);
+    layout->addWidget(email_input);
+    layout->addWidget(login_input);
+    layout->addWidget(password_input);
+    layout->addWidget(register_button);
     layout->setContentsMargins(50, 50, 50, 50); // Отступы от краев окна
     layout->setSpacing(20); // Расстояние между виджетами
     layout->setAlignment(Qt::AlignCenter); // Центрирование элементов
 
     this->setLayout(layout);
 
-    connect(ui->register_button, &QPushButton::clicked, this, &registration_form::on_reg_clicked);
+    connect(register_button, &QPushButton::clicked, this, &registration_form::on_reg_clicked);
 }
 
 registration_form::~registration_form()
