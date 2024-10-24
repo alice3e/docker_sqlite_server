@@ -110,7 +110,7 @@ void login_form::setup_ui()
     login_input = new QLineEdit(this);
     password_input = new QLineEdit(this);
     button_login = new QPushButton("Войти", this);
-    registration_button = new QPushButton("Войти", this);
+    registration_button = new QPushButton("Зарегистрироваться", this);
 
     // Настройка полей ввода
     login_input->setPlaceholderText("логин");
