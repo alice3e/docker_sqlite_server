@@ -116,13 +116,13 @@ curl -X GET "http://localhost:8001/get_matrix_by_filename/Matrix_JGL009.mtx"
 echo ""
 echo "Cleaning up resources..."
 
-# docker stop fastapi_app_container
-# docker rm fastapi_app_container
+docker stop fastapi_app_container
+docker rm fastapi_app_container
 
-# docker stop mongo_server_container
-# docker rm mongo_server_container
+docker stop mongo_server_container
+docker rm mongo_server_container
 
-# docker stop mongo_container
-# docker rm mongo_container
+docker stop mongo_container
+docker rm mongo_container
 
 echo "Tests completed."
