@@ -3,7 +3,7 @@ from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
 import httpx
 import os
-from mongo_service import save_matrix_to_db, get_matrix_from_db, find_matrices_by_user_id, find_matrix_by_filename  # Импортируем функцию из mongo_service.py
+from mongo_service import save_matrix_to_db, get_matrix_from_db, find_matrices_by_user_id, find_matrix_by_filename,list_files_in_db  # Импортируем функцию из mongo_service.py
 
 # Получаем URL из переменной окружения
 sqlite_url = os.getenv("SQLITE_URL_ID_REQUEST", "http://localhost:8000/id_request")
@@ -26,7 +26,7 @@ async def get_user_id(credentials: UserInput):
         if response.status_code == 200:
             user_data = response.json()
             user_id = user_data.get("user_id")
-            print(f"User ID retrieved: {user_id}")
+            print(f"!!! User ID retrieved: {user_id}")
             return user_id
         else:
             print(f"Failed to retrieve user ID: {response.text}")
@@ -65,8 +65,10 @@ async def save_matrix(
 
 @app.get("/get_matrix_by_matrix_id/{file_id}")
 async def get_matrix(file_id: str):
+    print('get by user id from main\n')
     matrix_data = await get_matrix_from_db(file_id)
     if not matrix_data:
+        print('ERROR : if not matrix_data')
         raise HTTPException(status_code=404, detail="Matrix not found")
     return {"matrix_data": matrix_data.decode('utf-8')}  # Или возвращайте в нужном формате
 
@@ -88,3 +90,14 @@ async def get_matrix_by_filename(filename: str):
 @app.get("/ping")
 async def get_status():
     return {"status": "running", "port": "8001:8000"} 
+
+@app.get("/list_files")
+async def list_files():
+    try:
+        print('trying to list files')
+        files = list_files_in_db()  # Убираем await здесь
+        return {"files": files}
+    except Exception as e:
+        print(f"An error occurred while listing files: {e}")
+        raise HTTPException(status_code=500, detail="An error occurred while listing files.")
+

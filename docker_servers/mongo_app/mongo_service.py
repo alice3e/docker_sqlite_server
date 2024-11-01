@@ -11,7 +11,7 @@ db = client["mydatabase"]  # Замените на имя вашей базы д
 grid_fs = GridFS(db)  # Создаем экземпляр GridFS
 
 async def save_matrix_to_db(user_id: int, matrix_name: str, matrix_content: bytes):
-    # Сохранение матрицы в GridFS
+    # Сохранение матрицы в GridFS 
     matrix_record = {
         "user_id": user_id,
         "filename": f"{matrix_name}"  # Уникальное имя файла
@@ -28,13 +28,22 @@ async def get_matrix_from_db(file_id):
     return matrix_data
 
 async def find_matrices_by_user_id(user_id: int):
+    print(f'\n\ntrying to get matrix by id {user_id}\n')
     # Поиск всех матриц для конкретного пользователя
     matrices = []
     for matrix in grid_fs.find({"user_id": user_id}):
         matrices.append({"file_id": str(matrix._id), "filename": matrix.filename})
+    print(f'\n\nmatrix by id {matrices}\n')
     return matrices
 
 async def find_matrix_by_filename(filename: str):
     # Поиск матрицы по имени файла
     matrix = grid_fs.find_one({"filename": filename})
     return matrix
+
+def list_files_in_db():
+    # Извлечение всех уникальных имен файлов из GridFS
+    print(f'list files from mongo {MONGODB_URL}')
+    files = db.fs.files.distinct("filename")  # Используем коллекцию fs.files для distinct-запроса
+    print(f'files {files}')
+    return files

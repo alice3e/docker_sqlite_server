@@ -52,14 +52,15 @@ async def register_user(credentials: UserCredentials, db: Session = Depends(sq.g
     # Проверка, есть ли пользователь с таким логином или email
     email_exists = sq.get_user_by_email(db, credentials.email)
     login_exists = sq.get_user_by_login(db, credentials.login)
+    print(f'email, login exists: {email_exists, login_exists}')
     if email_exists:
-
         raise HTTPException(status_code=400, detail="User with this email already exists")
     elif login_exists:
         print(f'User with this login already exists - {credentials.login}')
         raise HTTPException(status_code=400, detail="User with this login already exists")
     else:
     # Добавляем нового пользователя
+        print(f'User registered - {credentials.login}')
         new_user = sq.add_user(db, credentials.name, credentials.email, credentials.login, credentials.password)
         return {"message": "Registration successful", "user_id": new_user.id}
 

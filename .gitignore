@@ -1,4 +1,4 @@
 build/
 CMakeLists.txt.user
 .DS_Store
-matrix_vault_server/db/
+docker_servers/db_mongo
