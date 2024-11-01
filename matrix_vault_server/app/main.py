@@ -1,5 +1,5 @@
 # main.py
-from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
+from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
 import httpx
 import os
@@ -34,13 +34,29 @@ async def get_user_id(credentials: UserInput):
 
 # API для сохранения матрицы от пользователя
 @app.post("/save_matrix")
-async def save_matrix(credentials: UserInput, matrix_file: UploadFile = File(...)):
-    user_id = await get_user_id(credentials)
+async def save_matrix(
+    login: str = Form(...),  # Изменено: принимаем login через Form
+    matrix_file: UploadFile = File(...)
+):
+    credentials = UserInput(login=login)  # Создаем объект UserInput из переданного login
+    try:
+        user_id = await get_user_id(credentials)
+    except HTTPException:
+        print("User with such id not found")
+        raise HTTPException(status_code=400, detail="Invalid user id")
     # Сохранение загруженного файла .mtx
-    matrix_content = await matrix_file.read()  # Чтение содержимого файла
-    await save_matrix_to_db(user_id, matrix_content)  # Сохранение матрицы
-
-    return {"message": "Matrix saved successfully", "user_id": user_id}
+    try:
+        matrix_content = await matrix_file.read()  # Чтение содержимого файла
+        await save_matrix_to_db(user_id, matrix_content)  # Сохранение матрицы
+        return {"message": "Matrix saved successfully", "user_id": user_id}
+    except HTTPException as e:
+        # Обработка специфической HTTP ошибки
+        print(f"HTTP error occurred while saving matrix: {e.detail}")
+        raise HTTPException(status_code=e.status_code, detail="Error saving matrix (HTTP error). Please try again later.")
+    except Exception as e:
+        # Общая обработка всех других исключений
+        print(f"An unexpected error occurred while saving matrix: {e}")  # Логируем ошибку
+        raise HTTPException(status_code=500, detail="An unexpected error occurred while saving the matrix (unknown).")
 
 @app.get("/get_matrix_by_matrix_id/{file_id}")
 async def get_matrix(file_id: str):
@@ -63,3 +79,7 @@ async def get_matrix_by_filename(filename: str):
         raise HTTPException(status_code=404, detail="Matrix not found")
     matrix_data = matrix.read()  # Получаем содержимое матрицы
     return {"matrix_data": matrix_data.decode('utf-8')}  # Или возвращайте в нужном формате
+
+@app.get("/ping")
+async def get_status():
+    return {"status": "running", "port": "8001:8000"} 
