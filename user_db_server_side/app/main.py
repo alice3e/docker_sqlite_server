@@ -20,6 +20,10 @@ class UserCredentials(BaseModel):
 class LoginCredentials(BaseModel):
     login: str
     password: str
+
+# Pydantic модель для получения id
+class IdCredentials(BaseModel):
+    login: str
     
 # API для входа пользователя
 @app.post("/login")
@@ -58,3 +62,19 @@ async def register_user(credentials: UserCredentials, db: Session = Depends(sq.g
     # Добавляем нового пользователя
         new_user = sq.add_user(db, credentials.name, credentials.email, credentials.login, credentials.password)
         return {"message": "Registration successful", "user_id": new_user.id}
+
+# API для получения id пользователя от MongoDB
+@app.post("/id_request")
+async def id_request(credentials: IdCredentials, db: Session = Depends(sq.get_db_session)):
+    print(f"Attempting login for user: {credentials.login}")
+    try:
+        # Попытка получить пользователя
+        user = sq.get_user_by_login(db, credentials.login)
+        print(user.login, user.id)  # Отладочная информация о пароле
+    except AttributeError:
+        # Обработка ситуации, когда user равен None (отсутствует)
+        print("User not found")
+        raise HTTPException(status_code=400, detail="Invalid login")
+    # Если всё прошло успешно
+    print(f"Id request successful for user: {user.id}")
+    return {"message": "id request successful", "user_id": user.id}
