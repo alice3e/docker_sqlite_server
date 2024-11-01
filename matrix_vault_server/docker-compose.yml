@@ -1,19 +1,30 @@
 services:
+
+  sqlite-fastapi-server:
+    build: ./sqlite_app
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./configs/config_sqlite.env
+    volumes:
+      - ./db_sqlite:/app/data
+      
   mongodb:
     image: mongo:latest
     ports:
       - "27017:27017"
     volumes:
-      - ./db:/data/db
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: user
-      MONGO_INITDB_ROOT_PASSWORD: password
+      - ./db_mongo:/data/db
+    env_file:
+      - ./configs/config_mongo_db.env
 
-  python-server:
-    build: ./app
+  mongo-fastapi-server:
+    build: ./mongo_app
     ports:
       - "8001:8000"
     env_file:
-      - config.env
+      - ./configs/config_mongo_server.env
     depends_on:
       - mongodb
+      - sqlite-fastapi-server
+
