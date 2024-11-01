@@ -21,3 +21,20 @@ async def save_matrix_to_db(user_id: int, matrix_name: str, matrix_content: byte
     grid_fs.put(matrix_content, **matrix_record)  # Используем метод put для сохранения
 
     return {"message": "Matrix saved to GridFS successfully", "user_id": user_id, "matrix_name": matrix_name}
+
+async def get_matrix_from_db(file_id):
+    # Извлечение матрицы из GridFS по ID
+    matrix_data = grid_fs.get(file_id).read()
+    return matrix_data
+
+async def find_matrices_by_user_id(user_id: int):
+    # Поиск всех матриц для конкретного пользователя
+    matrices = []
+    for matrix in grid_fs.find({"user_id": user_id}):
+        matrices.append({"file_id": str(matrix._id), "filename": matrix.filename})
+    return matrices
+
+async def find_matrix_by_filename(filename: str):
+    # Поиск матрицы по имени файла
+    matrix = grid_fs.find_one({"filename": filename})
+    return matrix

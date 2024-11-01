@@ -3,7 +3,7 @@ from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
 from pydantic import BaseModel
 import httpx
 import os
-from mongo_service import save_matrix_to_db  # Импортируем функцию из mongo.py
+from mongo_service import save_matrix_to_db, get_matrix_from_db, find_matrices_by_user_id, find_matrix_by_filename  # Импортируем функцию из mongo_service.py
 
 # Получаем URL из переменной окружения
 sqlite_url = os.getenv("SQLITE_URL", "http://localhost:8000/id_request")
@@ -42,4 +42,24 @@ async def save_matrix(credentials: UserInput, matrix_file: UploadFile = File(...
 
     return {"message": "Matrix saved successfully", "user_id": user_id}
 
+@app.get("/get_matrix/{file_id}")
+async def get_matrix(file_id: str):
+    matrix_data = await get_matrix_from_db(file_id)
+    if not matrix_data:
+        raise HTTPException(status_code=404, detail="Matrix not found")
+    return {"matrix_data": matrix_data.decode('utf-8')}  # Или возвращайте в нужном формате
 
+@app.get("/get_matrices/{user_id}")
+async def get_matrices(user_id: int):
+    matrices = await find_matrices_by_user_id(user_id)
+    if not matrices:
+        raise HTTPException(status_code=404, detail="No matrices found for this user")
+    return {"matrices": matrices}
+
+@app.get("/get_matrix_by_filename/{filename}")
+async def get_matrix_by_filename(filename: str):
+    matrix = await find_matrix_by_filename(filename)
+    if not matrix:
+        raise HTTPException(status_code=404, detail="Matrix not found")
+    matrix_data = matrix.read()  # Получаем содержимое матрицы
+    return {"matrix_data": matrix_data.decode('utf-8')}  # Или возвращайте в нужном формате
