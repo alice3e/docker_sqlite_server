@@ -15,22 +15,22 @@ class UserInput(BaseModel):
     login: str
 
 async def get_user_id(credentials: UserInput):
-    return 123
-    # print(f"Attempting request for user: {credentials.login}")
+    print(f"Attempting request for user: {credentials.login}")
 
-    # # Формируем запрос к серверу SQLite для получения ID пользователя
-    # login_data = {"login": credentials.login}
-
-    # async with httpx.AsyncClient() as client:
-    #     response = await client.post(sqlite_url, json=login_data)
-    #     if response.status_code == 200:
-    #         user_data = response.json()
-    #         user_id = user_data.get("user_id")
-    #         print(f"User ID retrieved: {user_id}")
-    #         return user_id
-    #     else:
-    #         print(f"Failed to retrieve user ID: {response.text}")
-    #         raise HTTPException(status_code=response.status_code, detail="Failed to retrieve user ID")
+    # Формируем запрос к серверу SQLite для получения ID пользователя
+    login_data = {"login": credentials.login}
+    print(f'\nlogin_data = {login_data}\n')
+    async with httpx.AsyncClient() as client:
+        response = await client.post(sqlite_url, json=login_data)
+        print(f'\response = {response}\n')
+        if response.status_code == 200:
+            user_data = response.json()
+            user_id = user_data.get("user_id")
+            print(f"User ID retrieved: {user_id}")
+            return user_id
+        else:
+            print(f"Failed to retrieve user ID: {response.text}")
+            raise HTTPException(status_code=response.status_code, detail="Failed to retrieve user ID")
 
 # API для сохранения матрицы от пользователя
 @app.post("/save_matrix")
@@ -47,16 +47,21 @@ async def save_matrix(
     # Сохранение загруженного файла .mtx
     try:
         matrix_content = await matrix_file.read()  # Чтение содержимого файла
-        await save_matrix_to_db(user_id, matrix_content)  # Сохранение матрицы
+        filename = matrix_file.filename
+        
+        await save_matrix_to_db(user_id=user_id,matrix_name=filename,matrix_content=matrix_content)  # Сохранение матрицы
+        
         return {"message": "Matrix saved successfully", "user_id": user_id}
+    
     except HTTPException as e:
         # Обработка специфической HTTP ошибки
         print(f"HTTP error occurred while saving matrix: {e.detail}")
         raise HTTPException(status_code=e.status_code, detail="Error saving matrix (HTTP error). Please try again later.")
+    
     except Exception as e:
         # Общая обработка всех других исключений
         print(f"An unexpected error occurred while saving matrix: {e}")  # Логируем ошибку
-        raise HTTPException(status_code=500, detail="An unexpected error occurred while saving the matrix (unknown).")
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred while saving the matrix (unknown): {e}")
 
 @app.get("/get_matrix_by_matrix_id/{file_id}")
 async def get_matrix(file_id: str):

@@ -14,7 +14,7 @@ async def save_matrix_to_db(user_id: int, matrix_name: str, matrix_content: byte
     # Сохранение матрицы в GridFS
     matrix_record = {
         "user_id": user_id,
-        "filename": f"{matrix_name}.mtx"  # Уникальное имя файла
+        "filename": f"{matrix_name}"  # Уникальное имя файла
     }
 
     # Запись матрицы в GridFS

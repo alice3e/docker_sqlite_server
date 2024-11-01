@@ -1,12 +1,10 @@
-version: '3.8'
-
 services:
   mongodb:
     image: mongo:latest
     ports:
       - "27017:27017"
     volumes:
-      - mongodb_data:/data/db
+      - ./db:/data/db
     environment:
       MONGO_INITDB_ROOT_USERNAME: user
       MONGO_INITDB_ROOT_PASSWORD: password
@@ -19,6 +17,3 @@ services:
       - config.env
     depends_on:
       - mongodb
-
-volumes:
-  mongodb_data:
