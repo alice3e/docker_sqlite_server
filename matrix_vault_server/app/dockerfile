@@ -1,0 +1,14 @@
+# Dockerfile
+FROM python:3.11-slim
+
+# Устанавливаем рабочую директорию
+WORKDIR /app
+
+# Копируем файлы в контейнер
+COPY . .
+
+# Устанавливаем зависимости
+RUN pip install --no-cache-dir -t matrix_vault_server/app/requirements.txt 
+
+# Указываем команду для запуска приложения
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
