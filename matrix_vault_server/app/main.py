@@ -42,14 +42,14 @@ async def save_matrix(credentials: UserInput, matrix_file: UploadFile = File(...
 
     return {"message": "Matrix saved successfully", "user_id": user_id}
 
-@app.get("/get_matrix/{file_id}")
+@app.get("/get_matrix_by_matrix_id/{file_id}")
 async def get_matrix(file_id: str):
     matrix_data = await get_matrix_from_db(file_id)
     if not matrix_data:
         raise HTTPException(status_code=404, detail="Matrix not found")
     return {"matrix_data": matrix_data.decode('utf-8')}  # Или возвращайте в нужном формате
 
-@app.get("/get_matrices/{user_id}")
+@app.get("/get_matrix_by_user_id/{user_id}")
 async def get_matrices(user_id: int):
     matrices = await find_matrices_by_user_id(user_id)
     if not matrices:

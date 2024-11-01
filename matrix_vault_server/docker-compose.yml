@@ -12,9 +12,9 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: password
 
   python-server:
-    build: .
+    build: ./app
     ports:
-      - "8000:8000"
+      - "8001:8000"
     env_file:
       - config.env
     depends_on:
