@@ -37,8 +37,7 @@ docker run -d \
     --name $DOCKER_CONTAINER_NAME \
     $DOCKER_IMAGE_NAME
 
-# 5. Запуск контейнера с Mongo_Server (если это другой контейнер)
-#
+# 5. Запуск контейнера с Mongo_Server
 echo "Запуск контейнера с Mongo_Server..."
 docker run -d \
     -e MONGODB_URL="mongodb://$MONGO_CONTAINER_NAME:27017" \
