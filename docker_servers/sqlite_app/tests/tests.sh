@@ -5,7 +5,7 @@ set -e
 
 # Сборка Docker образа
 echo "Building Docker image..."
-docker build -t my_fastapi_app .
+docker build -t my_fastapi_app ..
 
 # Запуск Docker-контейнера в фоновом режиме
 echo "Running Docker container..."
