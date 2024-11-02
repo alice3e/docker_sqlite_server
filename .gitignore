@@ -1,4 +1,4 @@
 build/
 CMakeLists.txt.user
 .DS_Store
-docker_servers/db_mongo
+docker_servers/db_mongo/
