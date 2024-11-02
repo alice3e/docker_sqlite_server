@@ -1,5 +1,5 @@
 #!/bin/bash
-# cd docker_servers/mongo_app
+# cd docker_servers/mongo_app/tests
 MONGO_VOLUME_PATH="/Users/alicee/Desktop/Work_Main/docker_test/docker_servers/db_mongo"
 SQLITE_VOLUME_PATH="/Users/alicee/Desktop/Work_Main/docker_test/docker_servers/db_sqlite"
 DOCKER_IMAGE_NAME="my_fastapi_app"
@@ -7,7 +7,7 @@ MONGO_IMAGE_NAME="mongo_server"
 DOCKER_CONTAINER_NAME="fastapi_app_container"
 MONGO_CONTAINER_NAME="mongo_container"
 NETWORK_NAME="my_app_network"
-MATRIX_FILE="../tests/Matrix_JGL009.mtx" 
+MATRIX_FILE="Matrix_JGL009.mtx" 
 
 # # 1. Создаем пользовательскую сеть для взаимодействия контейнеров
 # echo "Создаем сеть $NETWORK_NAME..."
@@ -15,10 +15,10 @@ MATRIX_FILE="../tests/Matrix_JGL009.mtx"
 
 # 2. Сборка Docker образов
 echo "Building Docker image for FastAPI..."
-docker build -t $DOCKER_IMAGE_NAME ../sqlite_app/.
+docker build -t $DOCKER_IMAGE_NAME ../../sqlite_app/.
 
 echo "Building Docker image for MongoDB SERVER..."
-docker build -t $MONGO_IMAGE_NAME .
+docker build -t $MONGO_IMAGE_NAME ..
 
 # 3. Запуск контейнера с MongoDB
 echo "Запуск MongoDB контейнера..."
@@ -125,4 +125,8 @@ docker rm mongo_server_container
 docker stop mongo_container
 docker rm mongo_container
 
+docker image rm my_fastapi_app
+docker image rm mongo_server
+
+echo ""
 echo "Tests completed."
