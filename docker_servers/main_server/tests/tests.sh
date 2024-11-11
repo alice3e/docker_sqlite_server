@@ -3,10 +3,18 @@
 MAIN_SERVER_URL="http://localhost:8002"
 
 # Test User Data
-USER_NAME="TestUser"
-USER_EMAIL="testuser@example.com"
-USER_LOGIN="testlogin"
-USER_PASSWORD="testpassword"
+# Генерация случайных значений для пользователя
+USER_NAME="TestUser_$(uuidgen)"
+USER_EMAIL="testuser+$(uuidgen)@example.com"
+USER_LOGIN="testlogin_$(uuidgen | cut -c1-8)"
+USER_PASSWORD=$(openssl rand -base64 12)
+
+# Выводим сгенерированные значения
+echo "Generated user details:"
+echo "USER_NAME: $USER_NAME"
+echo "USER_EMAIL: $USER_EMAIL"
+echo "USER_LOGIN: $USER_LOGIN"
+echo "USER_PASSWORD: $USER_PASSWORD"
 
 # Test Matrix File
 MATRIX_FILE_PATH="./mongo_app/tests/Matrix_JGL009.mtx"
@@ -26,6 +34,13 @@ print_result() {
         echo "❌ $2 failed"
     fi
 }
+
+# 0. Test system status
+echo ""
+echo ""
+echo "0. Testing main server status check..."
+curl -s "$MAIN_SERVER_URL/status"
+#print_result $? "Main server status check"
 
 # 1. Test user registration
 echo ""
@@ -78,13 +93,6 @@ curl -s -X POST "$MAIN_SERVER_URL/login" \
 # curl -s "$MAIN_SERVER_URL/get_matrix_by_filename/$MATRIX_FILE_NAME" 
 #     #| grep -q "%%MatrixMarket"
 # #print_result $? "Retrieve matrix data by filename"
-
-# 6. Test system status
-echo ""
-echo ""
-echo "6. Testing main server status check..."
-curl -s "$MAIN_SERVER_URL/status"
-#print_result $? "Main server status check"
 
 echo ""
 echo ""
