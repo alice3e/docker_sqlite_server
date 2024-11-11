@@ -17,7 +17,7 @@ echo "USER_LOGIN: $USER_LOGIN"
 echo "USER_PASSWORD: $USER_PASSWORD"
 
 # Test Matrix File
-MATRIX_FILE_PATH="./mongo_app/tests/Matrix_JGL009.mtx"
+MATRIX_FILE_PATH="./Matrix_JGL009.mtx"
 MATRIX_FILE_NAME="Matrix_JGL009.mtx"
 
 # cd ../../ 
@@ -68,23 +68,26 @@ curl -s -X POST "$MAIN_SERVER_URL/login" \
     }' 
 #print_result $? "User login"
 
-# # 3. Test uploading matrix
-# echo ""
-# echo ""
-# echo "3. Testing matrix upload..."
-# curl -s -X POST "$MAIN_SERVER_URL/save_matrix" \
-#     -F "login=$USER_LOGIN" \
-#     -F "matrix_file=@$MATRIX_FILE_PATH" > /dev/null
-# #print_result $? "Matrix upload"
+# 3. Test uploading matrix
+echo ""
+echo ""
+echo "3. Testing matrix upload..."
+curl -s -X POST "$MAIN_SERVER_URL/save_matrix" \
+    -F "login=$USER_LOGIN" \
+    -F "matrix_file=@$MATRIX_FILE_NAME"
 
-# # 4. Test retrieving list of matrices for user
-# echo ""
-# echo ""
-# echo "4. Testing retrieval of matrix list for user..."
-# curl -s -X POST "$MAIN_SERVER_URL/get_matrix_names_by_user_login" \
-#     -F "login=$USER_LOGIN" 
-#     #| grep -q "$MATRIX_FILE_NAME"
-# #print_result $? "Retrieve matrix list"
+#print_result $? "Matrix upload"
+
+# 4. Test retrieving list of matrices for user
+# TODO : doesnt work!
+echo ""
+echo ""
+echo "4. Testing retrieval of matrix list for user..."
+curl -s -X POST "$MAIN_SERVER_URL/get_matrix_names_by_user_login" \
+    -H "Content-Type: application/json" \
+    -d "{\"login\": \"$USER_LOGIN\"}"
+    #| grep -q "$MATRIX_FILE_NAME"
+#print_result $? "Retrieve matrix list"
 
 # # 5. Test retrieving matrix data by filename
 # echo ""

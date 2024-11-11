@@ -73,11 +73,24 @@ async def get_matrix(file_id: str):
     return {"matrix_data": matrix_data.decode('utf-8')}  # Или возвращайте в нужном формате
 
 @app.get("/get_matrix_by_user_id/{user_id}")
-async def get_matrices(user_id: int):
+async def get_matrices_by_user_id(user_id: int):
     matrices = await find_matrices_by_user_id(user_id)
     if not matrices:
         raise HTTPException(status_code=404, detail="No matrices found for this user")
     return {"matrices": matrices}
+
+
+# Создаем эндпоинт для получения матриц по логину
+@app.post("/get_matrix_names_by_user_login")
+async def get_matrix_names_by_user_login(credentials: UserInput):
+    user_id = await get_user_id(credentials)
+    print(f"trying to return matrices by user_login = {credentials.login}, user_id = {user_id}")
+    
+    matrices = await find_matrices_by_user_id(user_id)
+    if not matrices:
+        raise HTTPException(status_code=404, detail="No matrices found for this user")
+    return {"matrices": matrices}
+
 
 @app.get("/get_matrix_by_filename/{filename}")
 async def get_matrix_by_filename(filename: str):

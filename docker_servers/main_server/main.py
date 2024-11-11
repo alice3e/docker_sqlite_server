@@ -68,6 +68,7 @@ async def register(credentials: RegisterCredentials):
 
 @app.post("/save_matrix")
 async def save_matrix(login: str = Form(...), matrix_file: UploadFile = File(...)):
+    print(f'trying to save matrix named {matrix_file.filename} from user = {login}')
     if not await check_server_availability(f"{MONGO_SERVER_URL}/status"):
         raise HTTPException(status_code=503, detail="MongoDB сервер недоступен")
 
@@ -83,11 +84,12 @@ async def save_matrix(login: str = Form(...), matrix_file: UploadFile = File(...
 
 @app.post("/get_matrix_names_by_user_login")
 async def get_matrix_names_by_user_login(credentials: IdCredentials):
+    print(f'trying to get matries for user with login = {credentials.login}')
     if not await check_server_availability(f"{MONGO_SERVER_URL}/status") or not await check_server_availability(f"{SQLITE_URL}/status"):
         raise HTTPException(status_code=503, detail="Один из серверов недоступен")
 
     async with httpx.AsyncClient() as client:
-        response = await client.post(f"{MONGO_SERVER_URL}/get_matrix_names", json=credentials.dict())
+        response = await client.post(f"{MONGO_SERVER_URL}/get_matrix_names_by_user_login", json=credentials.model_dump())
     
     if response.status_code != 200:
         raise HTTPException(status_code=response.status_code, detail="Ошибка при получении списка матриц")
