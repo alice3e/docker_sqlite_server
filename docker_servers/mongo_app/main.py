@@ -6,8 +6,8 @@ import os
 from mongo_service import save_matrix_to_db, get_matrix_from_db, find_matrices_by_user_id, find_matrix_by_filename,list_files_in_db  # Импортируем функцию из mongo_service.py
 
 # Получаем URL из переменной окружения
-sqlite_url = os.getenv("SQLITE_URL_ID_REQUEST", "http://localhost:8000/id_request")
-
+SQLITE_URL = os.getenv("SQLITE_URL_ID_REQUEST", "http://localhost:8000/id_request")
+MONGODB_URL = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
 app = FastAPI()
 
 # Pydantic модель для получения данных
@@ -21,7 +21,7 @@ async def get_user_id(credentials: UserInput):
     login_data = {"login": credentials.login}
     print(f'\nlogin_data = {login_data}\n')
     async with httpx.AsyncClient() as client:
-        response = await client.post(sqlite_url, json=login_data)
+        response = await client.post(SQLITE_URL, json=login_data)
         print(f'\response = {response}\n')
         if response.status_code == 200:
             user_data = response.json()
@@ -87,10 +87,20 @@ async def get_matrix_by_filename(filename: str):
     matrix_data = matrix.read()  # Получаем содержимое матрицы
     return {"matrix_data": matrix_data.decode('utf-8')}  # Или возвращайте в нужном формате
 
-@app.get("/ping")
+@app.get("/status")
 async def get_status():
-    # TODO : изменить константный порт
-    return {"status": "running", "port": "8001:8000"} 
+    # Проверяем доступность MongoDB контейнера
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(MONGODB_URL)
+            if response.status_code != 200:
+                raise Exception("MongoDB server is unavailable")
+    except Exception as e:
+        print(f"MongoDB доступен: {e}")
+        raise HTTPException(status_code=500, detail="MongoDB server is unavailable")
+    
+    # Если обе проверки прошли успешно
+    return {"status": "running"}
 
 @app.get("/list_files")
 async def list_files():
