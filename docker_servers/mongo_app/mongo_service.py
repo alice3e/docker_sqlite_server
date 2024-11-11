@@ -47,3 +47,13 @@ def list_files_in_db():
     files = db.fs.files.distinct("filename")  # Используем коллекцию fs.files для distinct-запроса
     print(f'files {files}')
     return files
+
+async def check_mongodb_availability():
+    try:
+        # Подключаемся к MongoDB с помощью pymongo
+        client = MongoClient(MONGODB_URL, serverSelectionTimeoutMS=5000)
+        client.server_info()  # Это вызывает ошибку, если MongoDB недоступен
+        return True
+    except Exception as e:
+        print(f"MongoDB доступен: {e}")
+        return False

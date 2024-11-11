@@ -3,7 +3,7 @@ from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
 import httpx
 import os
-from mongo_service import save_matrix_to_db, get_matrix_from_db, find_matrices_by_user_id, find_matrix_by_filename,list_files_in_db  # Импортируем функцию из mongo_service.py
+from mongo_service import save_matrix_to_db, get_matrix_from_db, find_matrices_by_user_id, find_matrix_by_filename,list_files_in_db, check_mongodb_availability  # Импортируем функцию из mongo_service.py
 
 # Получаем URL из переменной окружения
 SQLITE_URL = os.getenv("SQLITE_URL_ID_REQUEST", "http://localhost:8000/id_request")
@@ -87,21 +87,6 @@ async def get_matrix_by_filename(filename: str):
     matrix_data = matrix.read()  # Получаем содержимое матрицы
     return {"matrix_data": matrix_data.decode('utf-8')}  # Или возвращайте в нужном формате
 
-@app.get("/status")
-async def get_status():
-    # Проверяем доступность MongoDB контейнера
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(MONGODB_URL)
-            if response.status_code != 200:
-                raise Exception("MongoDB server is unavailable")
-    except Exception as e:
-        print(f"MongoDB доступен: {e}")
-        raise HTTPException(status_code=500, detail=f"MongoDB server is unavailable, MONGODB_URL = {MONGODB_URL}")
-    
-    # Если обе проверки прошли успешно
-    return {"status": "running", "SQLITE_URL":SQLITE_URL, "MONGODB_URL":MONGODB_URL}
-
 @app.get("/list_files")
 async def list_files():
     try:
@@ -112,3 +97,12 @@ async def list_files():
         print(f"An error occurred while listing files: {e}")
         raise HTTPException(status_code=500, detail="An error occurred while listing files.")
 
+@app.get("/status")
+async def get_status():
+    # Проверяем доступность MongoDB контейнера
+    if not await check_mongodb_availability():
+        raise HTTPException(status_code=500, detail="MongoDB server is unavailable")
+    
+    # Если обе проверки прошли успешно
+    print(f"status request, mongo db url - {MONGODB_URL}, sqlite url - {SQLITE_URL}")
+    return {"status": "running", "SQLITE_URL": SQLITE_URL, "MONGODB_URL": MONGODB_URL}
