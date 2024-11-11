@@ -28,8 +28,8 @@ docker run -d \
     -v "$MONGO_VOLUME_PATH:/data/db" \
     -p 27017:27017 mongo:latest  # Открываем порт MongoDB (если нужно) 
 
-# 4. Запуск контейнера с FastAPI
-echo "Запуск FastAPI контейнера..."
+# 4. Запуск контейнера с SQLite
+echo "Запуск SQLite контейнера..."
 docker run -d \
     -v "$SQLITE_VOLUME_PATH:/app/data" \
     -p 8000:8000 \
