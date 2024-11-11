@@ -97,10 +97,10 @@ async def get_status():
                 raise Exception("MongoDB server is unavailable")
     except Exception as e:
         print(f"MongoDB доступен: {e}")
-        raise HTTPException(status_code=500, detail="MongoDB server is unavailable")
+        raise HTTPException(status_code=500, detail=f"MongoDB server is unavailable, MONGODB_URL = {MONGODB_URL}")
     
     # Если обе проверки прошли успешно
-    return {"status": "running"}
+    return {"status": "running", "SQLITE_URL":SQLITE_URL, "MONGODB_URL":MONGODB_URL}
 
 @app.get("/list_files")
 async def list_files():

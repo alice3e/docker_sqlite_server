@@ -82,4 +82,5 @@ async def id_request(credentials: IdCredentials, db: Session = Depends(sq.get_db
 
 @app.get("/status")
 async def get_status():
+    print("status - running")
     return {"status": "running"}
