@@ -79,3 +79,8 @@ async def id_request(credentials: IdCredentials, db: Session = Depends(sq.get_db
     # Если всё прошло успешно
     print(f"Id request successful for user: {user.id}")
     return {"message": "id request successful", "user_id": user.id}
+
+@app.get("/ping")
+async def get_status():
+    # TODO : изменить константный порт
+    return {"status": "running", "port": "8000:8000"} 

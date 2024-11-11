@@ -89,6 +89,7 @@ async def get_matrix_by_filename(filename: str):
 
 @app.get("/ping")
 async def get_status():
+    # TODO : изменить константный порт
     return {"status": "running", "port": "8001:8000"} 
 
 @app.get("/list_files")
